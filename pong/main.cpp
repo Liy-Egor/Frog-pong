@@ -2,8 +2,6 @@
 //configuration::advanced::character set - not set
 //linker::input::additional dependensies Msimg32.lib; Winmm.lib
 
-
-//dfghjklkjhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhj
 #include "windows.h"
 #include "math.h"
 #include "ctime"
