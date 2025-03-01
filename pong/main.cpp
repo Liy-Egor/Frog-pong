@@ -59,7 +59,7 @@ struct sprite {
 
     void show()
     {
-        ShowBitmap(window.context, x, y, width, height, hBitmap);
+        ShowBitmap(window.context, x, y, width, height, hBitmap,true);
     }
 };
 sprite racket;//ракетка игрока
@@ -71,6 +71,7 @@ struct enemy {
     int bullettime = 0;
     bool dead = true;
     int spawnTime = 0;
+    int HPfrog = 3;           //rand()% 3-5
 
     void showBullet()
     {
@@ -133,11 +134,33 @@ struct enemy {
 };
 
 
+int location_number = 0;
+
+struct portal_ {
+    int x;
+    int y;
+    int w;
+    int h;
+    int destination;
+    bool active;
+};
+
+struct location {
+
+    std::vector<portal_> portal;
+    
+    
+    HBITMAP back;
+};
+
+location map[10];
+enemy frog[slots_count];
+
 sprite ball;//шарик
 //лягушка
 
 std::vector<sprite> bullet;
-enemy frog[slots_count];
+
 
 void spawnEnemy()
 {
@@ -159,7 +182,10 @@ void spawnEnemy()
                     enemy e;
                     e.enemy_sprite = f;
                     e.dead = false;
+                    e.HPfrog = rand() % 3 + 1;
                     frog[i] = e;
+                  
+
                 }
                 break;
 
@@ -180,7 +206,23 @@ void loadBitmap(const char* filename, HBITMAP& hbm)
     hbm = (HBITMAP)LoadImageA(NULL, filename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
 
+void ProcessMapsSwap() 
+{
+    auto portaL_count = map[location_number].portal.size();
+    for (int i = 0; i < portaL_count; i++)
+    {
+        if (map[location_number].portal[i].x < racket.x and
+            map[location_number].portal[i].y < racket.y and
+            map[location_number].portal[i].y + map[location_number].portal[i].h > racket.y and
+            map[location_number].portal[i].x + map[location_number].portal[i].w > racket.x)
+        {
+            location_number = map[location_number].portal[i].destination;
+            racket.x = window.width / 2.;
+            return;
+        }
 
+    }
+}
 
 void InitGame()
 {
@@ -203,7 +245,7 @@ void InitGame()
 
     //------------------------------------------------------
 
-    racket.width = 300;
+    racket.width = 30;
     racket.height = 30;
     racket.speed = 30;//скорость перемещения ракетки
     racket.x = window.width / 2.;//ракетка посередине окна
@@ -215,6 +257,17 @@ void InitGame()
 
     game.score = 0;
     game.balls = 9;
+
+
+    map[0].back = (HBITMAP)LoadImageA(NULL, "background_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    map[0].portal.push_back({ 0,window.height - window.height / 4,window.width / 50, window.height / 4,1,true });
+
+    map[1].back = (HBITMAP)LoadImageA(NULL, "background_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    map[1].portal.push_back({ 0,window.height - window.height / 4,window.width / 50, window.height / 4,0,true });
+
+    
+    
+
 
 }
 
@@ -252,7 +305,8 @@ void ProcessInput()
 {
     if (GetAsyncKeyState(VK_LEFT)) racket.x -= racket.speed;
     if (GetAsyncKeyState(VK_RIGHT)) racket.x += racket.speed;
-
+    if (GetAsyncKeyState(VK_UP)) racket.y -= racket.speed;
+    if (GetAsyncKeyState(VK_DOWN)) racket.y += racket.speed;
     clickTime = timeGetTime();
 
     if (GetAsyncKeyState(VK_LBUTTON) && clickTime > clickTimeOut)
@@ -316,7 +370,7 @@ void ShowBitmap(HDC hDC, int x, int y, int x1, int y1, HBITMAP hBitmapBall, bool
 
 void ShowRacketAndBall()
 {
-    ShowBitmap(window.context, 0, 0, window.width, window.height, hBack);//задний фон
+    ShowBitmap(window.context, 0, 0, window.width, window.height, map[location_number].back);//задний фон
     ShowBitmap(window.context, racket.x - racket.width / 2., racket.y, racket.width, racket.height, racket.hBitmap);// ракетка игрока
 
     
@@ -387,37 +441,51 @@ void ProcessBall()
             bullet[i].y += bullet[i].dy * bullet[i].speed;
         }
 
-        for (int i = 0; i < bullet.size(); i++)
-        {
-            for (int j = 0; j < slots_count; j++)
-            {
-                if (!bullet.empty())
-                {
-                    if (!frog[j].dead)
-                    {
+       for (int j = 0; j < slots_count; j++)
+       {
+           for (int i = 0; i < bullet.size(); i++)
+           {
+               if (!bullet.empty())
+               {
+                   if (!frog[j].dead)
+                   {
 
-                        if (bullet[i].x < frog[j].enemy_sprite.x + frog[j].enemy_sprite.width and
-                            bullet[i].y < frog[j].enemy_sprite.y + frog[j].enemy_sprite.height and
-                            bullet[i].x > frog[j].enemy_sprite.x and
-                            bullet[i].y > frog[j].enemy_sprite.y)
-                        {
-                            bullet.erase(bullet.begin() + i);
-                            frog[j].dead = true;
-                            frog[j].spawnTime = currenttime;
-                        }
-                    }
-                }
-                
-            }
-        }
+                       if (bullet[i].x < frog[j].enemy_sprite.x + frog[j].enemy_sprite.width and
+                           bullet[i].y < frog[j].enemy_sprite.y + frog[j].enemy_sprite.height and
+                           bullet[i].x > frog[j].enemy_sprite.x and
+                           bullet[i].y > frog[j].enemy_sprite.y)
+                       {
+                           bullet.erase(bullet.begin() + i);
+                           
+                           frog[j].HPfrog -= 1;
+                           if (frog[j].HPfrog < 0)
+                           {
+                               frog[j].dead = true;
+                               frog[j].spawnTime = currenttime;
+                           }
 
-        // for (int i = 0; i < bullet.size(); i++)
-        // {
-        //     if (bullet[i].speed < .1)
-        //     {
-        //         bullet.erase(bullet.begin() + i);
-        //     }
-        // }
+                           i--;
+                           if (i < 0) break;
+
+                       }
+                   }
+               }
+               else
+               {
+                   break;
+               }
+           }
+           
+       }
+        
+
+         for (int i = 0; i < bullet.size(); i++)
+         {
+             if (bullet[i].speed < .1)
+             {
+                 bullet.erase(bullet.begin() + i);
+             }
+         }
     }
     else
     {
@@ -483,6 +551,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         LimitRacket();//проверяем, чтобы ракетка не убежала за экран
         ProcessBall();//перемещаем шарик
         spawnEnemy();
+        ProcessMapsSwap();
         // ProcessRoom();//обрабатываем отскоки от стен и каретки, попадание шарика в картетку
 
 
