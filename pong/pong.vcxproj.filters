@@ -32,6 +32,24 @@
     <Image Include="..\Debug\racket_enemy.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\Debug\background_0.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\background_1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\frog.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\frog.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\IMG_0117.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\IMG_0120.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\Debug\bounce.wav">
