@@ -557,7 +557,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         Sleep(16);//ждем 16 милисекунд (1/количество кадров в секунду)
 
         ProcessInput();//опрос клавиатуры
-        ProcessHero();//прыжок
+        ProcessHero();//прыжок 
         LimitRacket();//проверяем, чтобы ракетка не убежала за экран
         ProcessBall();//перемещаем шарик
         spawnEnemy();
