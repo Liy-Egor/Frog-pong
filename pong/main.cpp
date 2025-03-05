@@ -305,10 +305,10 @@ void ProcessInput()
 {
     if (GetAsyncKeyState(VK_LEFT)) racket.x -= racket.speed;
     if (GetAsyncKeyState(VK_RIGHT)) racket.x += racket.speed;
-    if (GetAsyncKeyState(VK_UP)) racket.y -= racket.speed;
-    if (GetAsyncKeyState(VK_DOWN)) racket.y += racket.speed;
+    //if (GetAsyncKeyState(VK_UP)) racket.y -= racket.speed;
+    //if (GetAsyncKeyState(VK_DOWN)) racket.y += racket.speed;
     clickTime = timeGetTime();
-
+    
     if (GetAsyncKeyState(VK_LBUTTON) && clickTime > clickTimeOut)
     {
         sprite b;
@@ -388,17 +388,6 @@ void ShowRacketAndBall()
     
     }
 
-    /*int i = 0;
-    if (ball[i].dy < 0 && (enemy.x - racket.width / 4 > ball[i].x || ball[i].x > enemy.x + racket.width / 4))
-    {
-        //имитируем разумность оппонента. на самом деле, компьютер никогда не проигрывает, и мы не считаем попадает ли его ракетка по шарику
-        //вместо этого, мы всегда делаем отскок от потолка, а раектку противника двигаем - подставляем под шарик
-        //движение будет только если шарик летит вверх, и только если шарик по оси X выходит за пределы половины длины ракетки
-        //в этом случае, мы смешиваем координаты ракетки и шарика в пропорции 9 к 1
-        enemy.x = ball[i].x * .1 + enemy.x * .9;
-    }*/
-
-    //ShowBitmap(window.context, enemy.x - racket.width / 2, 0, racket.width, racket.height, enemy.hBitmap);//ракетка оппонента
 
     for (int i = 0; i < bullet.size(); i++)
     {
@@ -522,6 +511,26 @@ void InitWindow()
 
 }
 
+float gravity = 30;
+float jump = 0;
+float maxjump = 20;
+
+void ProcessHero()
+{
+    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height-1))
+    {
+        jump = 90;
+    }
+
+    racket.y += gravity - jump;
+    racket.y = min(window.height - racket.height, racket.y);
+    
+    jump *= .9;
+    jump = max(jump, 0);
+    
+    
+}
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
     _In_ LPWSTR    lpCmdLine,
@@ -548,6 +557,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         Sleep(16);//ждем 16 милисекунд (1/количество кадров в секунду)
 
         ProcessInput();//опрос клавиатуры
+        ProcessHero();//прыжок
         LimitRacket();//проверяем, чтобы ракетка не убежала за экран
         ProcessBall();//перемещаем шарик
         spawnEnemy();
