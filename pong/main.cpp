@@ -330,7 +330,7 @@ void ProcessInput()
 
         ProcessSound("bounce1.wav");
 
-        clickTimeOut = clickTime + 100;
+        clickTimeOut = clickTime + 1000;
 
 
     }
@@ -511,26 +511,78 @@ void InitWindow()
 
 }
 
-float gravity = 30;
+                            //float clickTime = 0;
+float gravity = 30;      //float clickTimeOut = 100;
 float jump = 0;
-float maxjump = 20;
+int isJump = false;
+int doubleJump = false;
 
 void ProcessHero()
 {
-    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height-1))
+
+    if (GetAsyncKeyState(VK_SPACE) && racket.y > window.height * 0.8 && isJump)
     {
-        jump = 90;
+
+        jump += 10;
+        isJump = true;
     }
 
-    racket.y += gravity - jump;
-    racket.y = min(window.height - racket.height, racket.y);
-    
-    jump *= .9;
-    jump = max(jump, 0);
-    
-    
+    if (GetAsyncKeyState(VK_SPACE) && racket.y > window.height / 2 && !isJump)
+    {
+
+        jump += 10;
+        doubleJump = true;
+    }
+
+    if (jump > 0)
+    {
+        racket.y += gravity - jump;
+        racket.y = min(window.height - racket.height, racket.y);
+        jump *= 0.9;
+        jump = max(jump, 0);
+    }
+
+    if (!isJump && !doubleJump)
+    {
+        isJump = false;
+        doubleJump = false;
+    }
 }
 
+
+
+
+//void ProcessHero()
+//{
+//float maxjump = window.height / 2;
+//int jumpCounter = 1;
+//    if (GetAsyncKeyState(VK_SPACE) && racket.y > maxjump && isJump && jumpCounter > 0)
+//    {
+//  
+//        jump += 10;
+//   
+//    }   
+//        else {
+//            if (racket.y > 200) {
+//            racket.y += gravity - jump;
+//            racket.y = min(window.height - racket.height, racket.y);
+//            jump *= 0.9;
+//            jump = max(jump, 0);
+//            }
+//
+//        }
+//
+//        isJump = true;
+//    if (racket.y < window.height - racket.height) {
+//      isJump = false;
+//      jumpCounter = 0;
+//    }
+//    
+//
+//    
+//
+//
+//}
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
     _In_ LPWSTR    lpCmdLine,
