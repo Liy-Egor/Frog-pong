@@ -157,7 +157,7 @@ struct location
 
 location map[10];
 enemy frog[slots_count];
-
+sprite platform;
 sprite ball;//шарик
 //л€гушка
 
@@ -238,6 +238,7 @@ void InitGame()
     //результат работы LoadImageA сохран€ет в хэндлах битмапов, рисование спрайтов будет произовдитьс€ с помощью этих хэндлов
     //ball.hBitmap = (HBITMAP)LoadImageA(NULL, "ball.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     racket.hBitmap = (HBITMAP)LoadImageA(NULL, "racket.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
     //enemy.hBitmap = (HBITMAP)LoadImageA(NULL, "racket_enemy.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     //frog.hBitmap = (HBITMAP)LoadImageA(NULL, "frog.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     //frog.loadBitmapWithNativeSize("frog.bmp");
@@ -409,6 +410,19 @@ void ShowRacketAndBall()
 
 }
 
+void ShowPlatform()
+{
+
+    
+    platform.height = 90;
+    platform.width = 300;
+    platform.x = window.width / 2;
+    platform.y = window.height / 2;
+    platform.loadBitmapWithNativeSize("racket_enemy.bmp");
+    platform.show();
+
+}
+
 void LimitRacket()
 {
     racket.x = max(racket.x, racket.width / 2.);//если коодината левого угла ракетки меньше нул€, присвоим ей ноль
@@ -521,31 +535,31 @@ void InitWindow()
                             //float clickTime = 0;
 float gravity = 30;      //float clickTimeOut = 100;
 float jump = 0;
-<<<<<<< HEAD
+
 float maxjump = 20;
 //bool doubleJump = false;
 
-void ProcessHero()
+/*void ProcessHero()
 {
-    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height - 1))
-=======
+    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height - 1*/
+
 int isJump = false;
 int doubleJump = false;
 
 void ProcessHero()
 {
 
-    if (GetAsyncKeyState(VK_SPACE) && racket.y > window.height * 0.8 && isJump)
->>>>>>> 7f7521025322de2f54baabec411a0e6f8b9f81d9
+    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height - 1))
+
     {
 
-        jump += 10;
-        isJump = true;
+        jump += 90;
+        /*isJump = true;*/
     }
    
     
 
-<<<<<<< HEAD
+
     racket.y += gravity - jump;
     racket.y = min(window.height - racket.height, racket.y);
     
@@ -605,28 +619,28 @@ void ProcessDash() //рывок
 
 
 
-=======
-    if (GetAsyncKeyState(VK_SPACE) && racket.y > window.height / 2 && !isJump)
-    {
 
-        jump += 10;
-        doubleJump = true;
-    }
-
-    if (jump > 0)
-    {
-        racket.y += gravity - jump;
-        racket.y = min(window.height - racket.height, racket.y);
-        jump *= 0.9;
-        jump = max(jump, 0);
-    }
-
-    if (!isJump && !doubleJump)
-    {
-        isJump = false;
-        doubleJump = false;
-    }
-}
+//    if (GetAsyncKeyState(VK_SPACE) && racket.y > window.height / 2 && !isJump)
+//    {
+//
+//        jump += 10;
+//        doubleJump = true;
+//    }
+//
+//    if (jump > 0)
+//    {
+//        racket.y += gravity - jump;
+//        racket.y = min(window.height - racket.height, racket.y);
+//        jump *= 0.9;
+//        jump = max(jump, 0);
+//    }
+//
+//    if (!isJump && !doubleJump)
+//    {
+//        isJump = false;
+//        doubleJump = false;
+//    }
+//}
 
 
 
@@ -662,7 +676,6 @@ void ProcessDash() //рывок
 //
 //
 //}
->>>>>>> 7f7521025322de2f54baabec411a0e6f8b9f81d9
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
     _In_ LPWSTR    lpCmdLine,
@@ -684,6 +697,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         ScreenToClient(window.hWnd, &mouse);
 
         ShowRacketAndBall();//рисуем фон, ракетку и шарик
+        ShowPlatform();
         ShowScore();//рисуем очик и жизни
         BitBlt(window.device_context, 0, 0, window.width, window.height, window.context, 0, 0, SRCCOPY);//копируем буфер в окно
         Sleep(16);//ждем 16 милисекунд (1/количество кадров в секунду)
