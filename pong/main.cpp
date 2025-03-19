@@ -136,7 +136,8 @@ struct enemy {
 
 int location_number = 0;
 
-struct portal_ {
+struct portal_ 
+{
     int x;
     int y;
     int w;
@@ -145,7 +146,8 @@ struct portal_ {
     bool active;
 };
 
-struct location {
+struct location 
+{
 
     std::vector<portal_> portal;
     
@@ -217,7 +219,8 @@ void ProcessMapsSwap()
             map[location_number].portal[i].x + map[location_number].portal[i].w > racket.x)
         {
             location_number = map[location_number].portal[i].destination;
-            racket.x = window.width / 2.;
+            racket.x = window.width / 4.;
+            racket.y = window.height - (window.height - racket.y);
             return;
         }
 
@@ -263,8 +266,12 @@ void InitGame()
     map[0].portal.push_back({ 0,window.height - window.height / 4,window.width / 50, window.height / 4,1,true });
 
     map[1].back = (HBITMAP)LoadImageA(NULL, "background_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    map[1].portal.push_back({ 0,window.height - window.height / 4,window.width / 50, window.height / 4,0,true });
-
+    map[1].portal.push_back({ window.width - window.width / 50,window.height - window.height / 4,window.width / 50, window.height / 4,0,true });
+    /*if (location_number == 1)
+    {
+        racket.x = window.width - (window.width / 50) - racket.width;
+        racket.y = window.height - racket.height;
+    }*/
     
     
 
@@ -514,22 +521,75 @@ void InitWindow()
 float gravity = 30;
 float jump = 0;
 float maxjump = 20;
+//bool doubleJump = false;
 
 void ProcessHero()
 {
-    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height-1))
+    if (GetAsyncKeyState(VK_SPACE) && racket.y > (window.height - racket.height - 1))
     {
         jump = 90;
     }
+   
+    
 
     racket.y += gravity - jump;
     racket.y = min(window.height - racket.height, racket.y);
     
     jump *= .9;
     jump = max(jump, 0);
-    
+    //doubleJump = false;
     
 }
+
+
+const float dashDistance = 150;
+float dash = 0;
+bool wasShiftPressed = false; 
+
+void ProcessDash() //рывок
+{
+    bool isShiftPressed = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+    if (isShiftPressed && !wasShiftPressed) 
+    {
+        wasShiftPressed = true; 
+        if (GetAsyncKeyState(VK_LEFT) & 0x8000) 
+        {
+            racket.x -= dashDistance; 
+        }
+        else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) 
+        {
+            racket.x += dashDistance; 
+        }
+    }
+    else if (!isShiftPressed)
+    {
+        wasShiftPressed = false;
+    }
+}
+
+
+//float dash = 0;
+//
+//
+//void ProcessDash()
+//{
+//    if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_LEFT))
+//    {
+//        dash = 50;
+//        racket.x -= dash;
+//        
+//    }
+//
+//    if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_RIGHT))
+//    {
+//        dash = 50;
+//        racket.x += dash;
+//        
+//    }
+//}
+
+
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -557,6 +617,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         Sleep(16);//ждем 16 милисекунд (1/количество кадров в секунду)
 
         ProcessInput();//опрос клавиатуры
+        ProcessDash();//рывок
         ProcessHero();//прыжок 
         LimitRacket();//проверяем, чтобы ракетка не убежала за экран
         ProcessBall();//перемещаем шарик
